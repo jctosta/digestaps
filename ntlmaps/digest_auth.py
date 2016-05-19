@@ -18,9 +18,10 @@
 #
 
 import string, select, base64
-import digest_messages, utils
+import digest_messages, utils, digest_encrypt
 
 digest_messages = digest_messages.digest_messages()
+digest_encrypt = digest_encrypt.digest_encrypt()
 
 # 
 # See RFC2617
@@ -88,9 +89,13 @@ class digest_auther:
 
         env = {}
 
-        env['USER'] = connection.config['DIGEST_AUTH']['USER']
-        env['PASSWORD'] = connection.config['DIGEST_AUTH']['PASSWORD']
+        KEY='your-key-super-duper-secret-key-here-only-first-32-characters-are-used'
+        encrypted_pass = connection.config['DIGEST_AUTH']['PASSWORD']
+        decrypted_pass = digest_encrypt.decrypt(KEY, str(encrypted_pass))
 
+        env['USER'] = connection.config['DIGEST_AUTH']['USER']
+        env['PASSWORD'] = decrypted_pass
+        
         connection.logger.log('*** Digest User: %s\n' % (env['USER'],))
 
         connection.logger.log('*** Environment has been built successfully.\n')
